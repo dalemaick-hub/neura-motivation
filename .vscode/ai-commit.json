@@ -1,0 +1,21 @@
+{
+  "provider": "gemini",
+  "apis": {
+    "gemini": {
+      "apiKey": "",
+      "model": "gemini-pro"
+    },
+    "bedrock": {
+      "region": "us-east-1",
+      "accessKeyId": "",
+      "secretAccessKey": "",
+      "model": "anthropic.claude-3-sonnet-20240229-v1:0"
+    }
+  },
+  "settings": {
+    "autoFill": true,
+    "showPreview": false,
+    "maxRetries": 3,
+    "timeout": 30000
+  }
+}
