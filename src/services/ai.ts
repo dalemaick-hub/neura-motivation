@@ -14,8 +14,8 @@ import type { AIQuoteResult, CategoryId } from '../types';
 
 // ── Constantes ──────────────────────────────────────────────
 
-const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
-const GROQ_MODEL = 'llama3-8b-8192';
+const OPENAI_API_URL = 'https://api.openai.com/v1/chat/completions';
+const OPENAI_MODEL = 'gpt-3.5-turbo';
 const MAX_TOKENS = 60;
 const REQUEST_TIMEOUT_MS = 8000;
 
@@ -25,7 +25,7 @@ const REQUEST_TIMEOUT_MS = 8000;
  * NUNCA pongas la clave directamente como string aquí.
  */
 function getApiKey(): string | undefined {
-  return Constants.expoConfig?.extra?.EXPO_PUBLIC_GROQ_API_KEY as string | undefined;
+  return Constants.expoConfig?.extra?.EXPO_PUBLIC_OPENAI_API_KEY as string | undefined;
 }
 
 // ── Banco de frases de fallback (sin internet / sin API key) ─
@@ -108,10 +108,10 @@ function sanitizeQuote(
 }
 
 /**
- * Hace la petición a la API de Groq con un timeout de seguridad.
+ * Hace la petición a la API de OpenAI con un timeout de seguridad.
  * Lanza error si la respuesta no es 2xx.
  */
-async function fetchFromGroq(
+async function fetchFromOpenAI(
   categoryId: CategoryId,
   apiKey: string
 ): Promise<string> {
@@ -119,7 +119,7 @@ async function fetchFromGroq(
   const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
 
   try {
-    const response = await fetch(GROQ_API_URL, {
+    const response = await fetch(OPENAI_API_URL, {
       method: 'POST',
       signal: controller.signal,
       headers: {
@@ -128,7 +128,7 @@ async function fetchFromGroq(
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: GROQ_MODEL,
+        model: OPENAI_MODEL,
         temperature: 1,
         max_tokens: MAX_TOKENS,
         messages: [
@@ -148,7 +148,7 @@ async function fetchFromGroq(
     });
 
     if (!response.ok) {
-      throw new Error(`Groq API error: ${response.status} ${response.statusText}`);
+      throw new Error(`OpenAI API error: ${response.status} ${response.statusText}`);
     }
 
     const data = (await response.json()) as {
@@ -165,7 +165,7 @@ async function fetchFromGroq(
 // ── API pública ──────────────────────────────────────────────
 
 /**
- * Genera una frase motivacional usando IA (Groq) o fallback local.
+ * Genera una frase motivacional usando IA (OpenAI) o fallback local.
  *
  * @param categoryId  - Categoría de la frase (calma, ansiedad, etc.)
  * @param excludedQuotes - Frases que NO deben repetirse (historial reciente)
@@ -174,7 +174,7 @@ async function fetchFromGroq(
  * @example
  * const result = await generateQuote('calma', ['Frase ya vista']);
  * console.log(result.quote);        // "Respira. Todo va a estar bien."
- * console.log(result.isLocalFallback); // false si vino de Groq
+ * console.log(result.isLocalFallback); // false si vino de OpenAI
  */
 export async function generateQuote(
   categoryId: CategoryId = 'calma',
@@ -192,7 +192,7 @@ export async function generateQuote(
   }
 
   try {
-    const rawContent = await fetchFromGroq(categoryId, apiKey);
+    const rawContent = await fetchFromOpenAI(categoryId, apiKey);
     const quote = sanitizeQuote(rawContent, categoryId, excludedQuotes);
 
     return {

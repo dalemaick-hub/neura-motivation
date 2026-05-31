@@ -11,7 +11,7 @@ Todas las claves de API y secretos se guardan en variables de entorno, **nunca**
 const API_KEY = 'gsk_abc123...';
 
 // ✅ BIEN — así está implementado
-const API_KEY = Constants.expoConfig?.extra?.EXPO_PUBLIC_GROQ_API_KEY;
+const API_KEY = Constants.expoConfig?.extra?.EXPO_PUBLIC_OPENAI_API_KEY ?? Constants.expoConfig?.extra?.EXPO_PUBLIC_GROQ_API_KEY;
 ```
 
 ### 2. El archivo `.env` está en `.gitignore`
@@ -60,7 +60,7 @@ eas login
 # Añade los secrets (se guardan en servidores de Expo, no en tu repo)
 eas secret:create --scope project --name SUPABASE_URL --value "https://..."
 eas secret:create --scope project --name SUPABASE_ANON_KEY --value "eyJ..."
-eas secret:create --scope project --name EXPO_PUBLIC_GROQ_API_KEY --value "gsk_..."
+eas secret:create --scope project --name EXPO_PUBLIC_OPENAI_API_KEY --value "gsk_..."
 
 # Lanza el build — Expo inyecta los secrets automáticamente
 eas build --platform android --profile production

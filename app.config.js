@@ -22,7 +22,7 @@ try {
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
-const EXPO_PUBLIC_GROQ_API_KEY = process.env.EXPO_PUBLIC_GROQ_API_KEY;
+const EXPO_PUBLIC_OPENAI_API_KEY = process.env.EXPO_PUBLIC_OPENAI_API_KEY ?? process.env.EXPO_PUBLIC_GROQ_API_KEY;
 
 // ── Validación en tiempo de build ──────────────────────────
 // Solo advertimos, no bloqueamos el build (la app tiene fallbacks)
@@ -35,9 +35,9 @@ if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
   );
 }
 
-if (!EXPO_PUBLIC_GROQ_API_KEY) {
+if (!EXPO_PUBLIC_OPENAI_API_KEY) {
   console.warn(
-    '\n⚠️  [NeuraMotivación] EXPO_PUBLIC_GROQ_API_KEY no encontrado.\n' +
+    '\n⚠️  [NeuraMotivación] EXPO_PUBLIC_OPENAI_API_KEY no encontrado.\n' +
     '   La app usará frases de fallback local (sin IA).\n'
   );
 }
@@ -55,7 +55,7 @@ export default {
       supabaseUrl: SUPABASE_URL ?? null,
       supabaseAnonKey: SUPABASE_ANON_KEY ?? null,
       // EXPO_PUBLIC_ prefix → también accesible como process.env en el cliente
-      EXPO_PUBLIC_GROQ_API_KEY: EXPO_PUBLIC_GROQ_API_KEY ?? null,
+      EXPO_PUBLIC_OPENAI_API_KEY: EXPO_PUBLIC_OPENAI_API_KEY ?? null,
     },
   },
 };

@@ -99,7 +99,7 @@ export default function HomeScreen() {
       <QuoteCard
         text={quote}
         categoryLabel={getCategoryName(currentCategory?.id)}
-        caption={dailyQuote ? 'Frase del día guardada y preparada para notificaciones únicas.' : 'Frases IA listas para enchufar con Groq o fallback local cuando falte la API key.'}
+        caption={dailyQuote ? 'Frase del día guardada y preparada para notificaciones únicas.' : 'Frases IA listas para enchufar con OpenAI o fallback local cuando falte la API key.'}
       />
 
       <View style={styles.widgetNote}>

@@ -36,7 +36,7 @@ export interface FavoriteQuote {
 
 export interface AIQuoteResult {
   quote: string;
-  /** true si la frase viene del fallback local, false si viene de Groq */
+  /** true si la frase viene del fallback local, false si viene de OpenAI */
   isLocalFallback: boolean;
   categoryId: CategoryId;
 }

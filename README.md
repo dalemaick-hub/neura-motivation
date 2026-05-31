@@ -25,7 +25,7 @@ NeuraMotivación es una app móvil que combina **IA generativa** con principios 
 - Guardar tus frases favoritas para consultarlas cuando las necesites
 - Recibir notificaciones inteligentes que cambian de tono según el contexto
 
-El motor de IA usa [Groq](https://groq.com) (LLaMA 3) para generar frases frescas, con fallback local sin necesidad de conexión.
+El motor de IA usa [OpenAI](https://openai.com) para generar frases frescas, con fallback local sin necesidad de conexión.
 
 ---
 
@@ -67,7 +67,7 @@ neura-motivation/
 │   │   ├── FavoritesScreen.js
 │   │   └── SettingsScreen.js
 │   ├── services/               # Lógica de negocio
-│   │   ├── ai.js               # Motor IA (Groq + fallback)
+│   │   ├── ai.js               # Motor IA (OpenAI + fallback)
 │   │   ├── dailyQuote.js       # Frase del día (AsyncStorage)
 │   │   ├── favorites.js        # Gestión de favoritos
 │   │   ├── notifications.js    # Notificaciones programadas
@@ -94,7 +94,7 @@ neura-motivation/
 - [Expo CLI](https://expo.dev/tools): `npm install -g expo-cli`
 - Cuenta en [Expo](https://expo.dev) (para builds)
 - Cuenta en [Supabase](https://supabase.com) (para autenticación)
-- API Key de [Groq](https://console.groq.com) (para IA, opcional — hay fallback local)
+- API Key de [OpenAI](https://platform.openai.com) (para IA, opcional — hay fallback local)
 
 ### 1. Clonar el repositorio
 
@@ -124,7 +124,7 @@ Rellena las siguientes variables en `.env`:
 ```env
 SUPABASE_URL=https://xxxx.supabase.co
 SUPABASE_ANON_KEY=eyJ...
-EXPO_PUBLIC_GROQ_API_KEY=gsk_...
+EXPO_PUBLIC_OPENAI_API_KEY=gsk_...  # o EXPO_PUBLIC_GROQ_API_KEY para compatibilidad temporal
 ```
 
 > ⚠️ **Nunca subas tu archivo `.env` a Git.** Ya está en `.gitignore`.
@@ -155,9 +155,9 @@ Escanea el QR con la app **Expo Go** en tu móvil o usa un emulador.
 |----------|-------------|-------------|
 | `SUPABASE_URL` | URL de tu proyecto Supabase | Sí (para auth) |
 | `SUPABASE_ANON_KEY` | Clave pública anon de Supabase | Sí (para auth) |
-| `EXPO_PUBLIC_GROQ_API_KEY` | API key de Groq para IA generativa | No (hay fallback) |
+| `EXPO_PUBLIC_OPENAI_API_KEY` | API key de OpenAI para IA generativa | No (hay fallback) |
 
-> La app funciona **sin Groq** usando frases locales de fallback. Supabase es necesario para el login.
+> La app funciona **sin OpenAI** usando frases locales de fallback. Supabase es necesario para el login.
 
 ---
 
@@ -165,7 +165,7 @@ Escanea el QR con la app **Expo Go** en tu móvil o usa un emulador.
 
 El servicio `src/services/ai.js` implementa:
 
-1. **Generación con Groq**: llama a LLaMA 3 con un prompt especializado en frases motivacionales en español
+1. **Generación con OpenAI**: llama al endpoint de chat completions con un prompt especializado en frases motivacionales en español
 2. **Sistema de exclusiones**: evita repetir frases ya vistas en el historial (últimas 15)
 3. **Sanitización**: limpia la respuesta de comillas, espacios y caracteres innecesarios
 4. **Fallback local**: si no hay API key o falla la red, usa un banco de frases por categoría
@@ -173,9 +173,9 @@ El servicio `src/services/ai.js` implementa:
 ```
 Usuario elige categoría
        ↓
-¿Hay API key de Groq?
+¿Hay API key de OpenAI?
    ↓ Sí                ↓ No
-Llama a Groq API   Usa frases locales
+Llama a OpenAI API   Usa frases locales
        ↓
 Sanitiza respuesta
        ↓
@@ -215,7 +215,7 @@ Las notificaciones se programan localmente con `expo-notifications`:
 - Se leen desde variables de entorno vía `app.config.js`
 - El archivo `.env` está excluido de Git en `.gitignore`
 - Para builds de producción usa [EAS Secrets](https://docs.expo.dev/build-reference/variables/) en lugar de `.env`
-- La API key de Groq solo viaja en el header `Authorization` de peticiones HTTPS
+- La API key de OpenAI solo viaja en el header `Authorization` de peticiones HTTPS
 - Supabase gestiona el token de sesión con `autoRefreshToken` activado
 
 ### Para producción (EAS Build)
@@ -227,7 +227,7 @@ npm install -g eas-cli
 # Configura tus secrets en Expo (no se guardan en el repo)
 eas secret:create --scope project --name SUPABASE_URL --value "https://xxxx.supabase.co"
 eas secret:create --scope project --name SUPABASE_ANON_KEY --value "eyJ..."
-eas secret:create --scope project --name EXPO_PUBLIC_GROQ_API_KEY --value "gsk_..."
+eas secret:create --scope project --name EXPO_PUBLIC_OPENAI_API_KEY --value "gsk_..."
 
 # Lanza el build
 eas build --platform android
@@ -279,5 +279,5 @@ MIT © 2025 dalemaick-hub
 ---
 
 <p align="center">
-  Hecho con ❤️ y React Native · <a href="https://expo.dev">Expo</a> · <a href="https://groq.com">Groq</a> · <a href="https://supabase.com">Supabase</a>
+  Hecho con ❤️ y React Native · <a href="https://expo.dev">Expo</a> · <a href="https://openai.com">OpenAI</a> · <a href="https://supabase.com">Supabase</a>
 </p>

@@ -1,7 +1,7 @@
 import Constants from 'expo-constants';
 
-const API_URL = 'https://api.groq.com/openai/v1/chat/completions';
-const API_KEY = Constants.expoConfig?.extra?.EXPO_PUBLIC_GROQ_API_KEY;
+const API_URL = 'https://api.openai.com/v1/chat/completions';
+const API_KEY = Constants.expoConfig?.extra?.EXPO_PUBLIC_OPENAI_API_KEY ?? Constants.expoConfig?.extra?.EXPO_PUBLIC_GROQ_API_KEY;
 
 const fallbackQuotes = {
   calma: [
@@ -66,7 +66,7 @@ export async function generateQuote(categoryId = 'calma', excludedQuotes = []) {
         Authorization: `Bearer ${API_KEY}`,
       },
       body: JSON.stringify({
-        model: 'llama3-8b-8192',
+        model: 'gpt-3.5-turbo',
         temperature: 1,
         max_tokens: 60,
         messages: [
@@ -84,7 +84,7 @@ export async function generateQuote(categoryId = 'calma', excludedQuotes = []) {
     });
 
     if (!response.ok) {
-      throw new Error(`Groq request failed with status ${response.status}`);
+      throw new Error(`OpenAI request failed with status ${response.status}`);
     }
 
     const data = await response.json();
