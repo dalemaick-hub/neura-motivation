@@ -1,13 +1,24 @@
 import appJson from './app.json';
 
+try {
+  require('dotenv').config();
+} catch (_error) {
+  // dotenv may already be available via Expo dependencies.
+}
+
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
+const EXPO_PUBLIC_GROQ_API_KEY = process.env.EXPO_PUBLIC_GROQ_API_KEY;
+
 export default {
-  ...appJson,
   expo: {
     ...appJson.expo,
+    name: 'neura-motivation',
+    slug: 'neura-motivation',
     extra: {
-      ...(appJson.expo?.extra ?? {}),
-      EXPO_PUBLIC_SUPABASE_URL: 'https://iboteqiyqqljpbkflkew.supabase.co',
-      EXPO_PUBLIC_SUPABASE_ANON_KEY: 'sb_publishable_TU_KEY_AQUI',
+      supabaseUrl: SUPABASE_URL,
+      supabaseAnonKey: SUPABASE_ANON_KEY,
+      EXPO_PUBLIC_GROQ_API_KEY,
     },
   },
 };

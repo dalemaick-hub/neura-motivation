@@ -1,25 +1,27 @@
-import { useCallback, useState } from 'react';
-import {
-  ActivityIndicator,
-  Pressable,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
+import { useCallback, useState } from 'react';
+import {
+    ActivityIndicator,
+    Pressable,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
+} from 'react-native';
 
 import GradientBackground from '../components/GradientBackground';
 import QuoteCard from '../components/QuoteCard';
 import { categories, getCategoryName } from '../data/categories';
 import { supabase } from '../lib/supabase';
 import { generateQuote } from '../services/ai';
+import { getOrCreateTodaysQuote } from '../services/dailyQuote';
 import { isFavoriteQuote, removeFavorite, saveFavorite } from '../services/favorites';
 import { getSelectedCategory } from '../services/preferences';
 
 export default function HomeScreen() {
   const [quote, setQuote] = useState('Respira. Todo va a estar bien.');
+  const [dailyQuote, setDailyQuote] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState('calma');
   const [isLoading, setIsLoading] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
@@ -31,10 +33,13 @@ export default function HomeScreen() {
 
       const syncScreenState = async () => {
         const storedCategory = await getSelectedCategory();
-        const favoriteState = await isFavoriteQuote(quote);
+        const todaysQuote = await getOrCreateTodaysQuote(storedCategory);
+        const favoriteState = await isFavoriteQuote(todaysQuote.text);
 
         if (isActive) {
           setSelectedCategory(storedCategory);
+          setDailyQuote(todaysQuote);
+          setQuote(todaysQuote.text);
           setIsFavorite(favoriteState);
         }
       };
@@ -44,7 +49,7 @@ export default function HomeScreen() {
       return () => {
         isActive = false;
       };
-    }, [quote])
+    }, [])
   );
 
   const currentCategory = categories.find((category) => category.id === selectedCategory);
@@ -94,8 +99,14 @@ export default function HomeScreen() {
       <QuoteCard
         text={quote}
         categoryLabel={getCategoryName(currentCategory?.id)}
-        caption="Frases IA listas para enchufar con Groq o fallback local cuando falte la API key."
+        caption={dailyQuote ? 'Frase del día guardada y preparada para notificaciones únicas.' : 'Frases IA listas para enchufar con Groq o fallback local cuando falte la API key.'}
       />
+
+      <View style={styles.widgetNote}>
+        <Text style={styles.widgetNoteText}>
+          Widget diario preparado en la app: la frase del día se genera y queda lista para mostrarse en pantalla.
+        </Text>
+      </View>
 
       <View style={styles.actions}>
         <TouchableOpacity
@@ -122,7 +133,7 @@ export default function HomeScreen() {
           Premium con RevenueCat para categorías extra, más fondos y más generaciones IA.
         </Text>
         <Text style={styles.roadmapText}>
-          Widget diario listo para conectar cuando demos el salto a Expo Widgets o nativo.
+          Widget diario preparado con vista previa en Ajustes; listo para integrarse como pantalla de inicio.
         </Text>
       </View>
 
@@ -222,6 +233,19 @@ const styles = StyleSheet.create({
     color: 'rgba(255,255,255,0.72)',
     lineHeight: 22,
     fontSize: 15,
+  },
+  widgetNote: {
+    backgroundColor: 'rgba(255,255,255,0.08)',
+    padding: 14,
+    borderRadius: 16,
+    marginBottom: 18,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.14)',
+  },
+  widgetNoteText: {
+    color: 'rgba(255,255,255,0.76)',
+    fontSize: 14,
+    lineHeight: 20,
   },
   signOutButton: {
     marginTop: 16,

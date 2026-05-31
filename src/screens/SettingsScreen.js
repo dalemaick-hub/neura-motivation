@@ -1,15 +1,34 @@
+import { useEffect, useState } from 'react';
 import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import GradientBackground from '../components/GradientBackground';
+import QuoteCard from '../components/QuoteCard';
 import { supabase } from '../lib/supabase';
+import { getOrCreateTodaysQuote } from '../services/dailyQuote';
 import { setupNotifications } from '../services/notifications';
 
 export default function SettingsScreen() {
+  const [dailyQuote, setDailyQuote] = useState(null);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    getOrCreateTodaysQuote().then((quote) => {
+      if (isMounted) {
+        setDailyQuote(quote);
+      }
+    });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   const handleReminder = async () => {
     const result = await setupNotifications();
 
     if (result.status === 'enabled') {
-      Alert.alert('Recordatorio activo', 'Cada día a las 9:00 tendrás tu recordatorio de NEURA.');
+      Alert.alert('Recordatorio activo', 'Cada día a las 9:00 tendrás un recordatorio único de NEURA.');
       return;
     }
 
@@ -52,10 +71,21 @@ export default function SettingsScreen() {
         <View style={styles.item}>
           <Text style={styles.itemTitle}>Widget diario</Text>
           <Text style={styles.itemText}>
-            Siguiente fase preparada para mostrar la frase del día en la pantalla principal.
+            Vista previa del widget con la frase del día; este contenido está listo para integrar en pantalla de inicio.
           </Text>
         </View>
       </View>
+
+      {dailyQuote ? (
+        <View style={styles.widgetPreview}>
+          <Text style={styles.previewLabel}>Vista previa de widget</Text>
+          <QuoteCard
+            text={dailyQuote.text}
+            categoryLabel={dailyQuote.categoryId}
+            caption="Se muestra aquí la frase preparada para tu widget diario."
+          />
+        </View>
+      ) : null}
 
       <Pressable style={[styles.item, styles.logout]} onPress={handleLogout}>
         <Text style={styles.itemTitle}>Cerrar sesión</Text>
@@ -110,5 +140,17 @@ const styles = StyleSheet.create({
   },
   logout: {
     marginTop: 18,
+  },
+  widgetPreview: {
+    marginTop: 18,
+    padding: 0,
+  },
+  previewLabel: {
+    color: '#d3b9ff',
+    fontSize: 13,
+    fontWeight: '700',
+    letterSpacing: 1.4,
+    textTransform: 'uppercase',
+    marginBottom: 10,
   },
 });

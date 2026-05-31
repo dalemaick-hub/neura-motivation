@@ -28,7 +28,7 @@ export default function TabLayout() {
         name="explore"
         options={{
           title: 'Categorías',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="sparkles" color={color} />,
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="bolt.fill" color={color} />,
         }}
       />
     </Tabs>

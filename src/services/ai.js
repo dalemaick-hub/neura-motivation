@@ -1,5 +1,7 @@
+import Constants from 'expo-constants';
+
 const API_URL = 'https://api.groq.com/openai/v1/chat/completions';
-const API_KEY = process.env.EXPO_PUBLIC_GROQ_API_KEY;
+const API_KEY = Constants.expoConfig?.extra?.EXPO_PUBLIC_GROQ_API_KEY;
 
 const fallbackQuotes = {
   calma: [
@@ -29,22 +31,31 @@ const fallbackQuotes = {
   ],
 };
 
-function getRandomFallback(categoryId = 'calma') {
+function getRandomFallback(categoryId = 'calma', excludedQuotes = []) {
   const list = fallbackQuotes[categoryId] ?? fallbackQuotes.calma;
-  return list[Math.floor(Math.random() * list.length)];
+  const candidates = list.filter((quote) => !excludedQuotes.includes(quote));
+  if (candidates.length === 0) {
+    return list[Math.floor(Math.random() * list.length)];
+  }
+  return candidates[Math.floor(Math.random() * candidates.length)];
 }
 
-function sanitizeQuote(content, categoryId) {
+function sanitizeQuote(content, categoryId, excludedQuotes = []) {
   if (!content || typeof content !== 'string') {
-    return getRandomFallback(categoryId);
+    return getRandomFallback(categoryId, excludedQuotes);
   }
 
-  return content.replace(/^["'“”]+|["'“”]+$/g, '').trim();
+  const cleaned = content.replace(/^['"“”]+|['"“”]+$/g, '').trim();
+  if (!cleaned || excludedQuotes.includes(cleaned)) {
+    return getRandomFallback(categoryId, excludedQuotes);
+  }
+
+  return cleaned;
 }
 
-export async function generateQuote(categoryId = 'calma') {
+export async function generateQuote(categoryId = 'calma', excludedQuotes = []) {
   if (!API_KEY) {
-    return getRandomFallback(categoryId);
+    return getRandomFallback(categoryId, excludedQuotes);
   }
 
   try {
@@ -77,8 +88,8 @@ export async function generateQuote(categoryId = 'calma') {
     }
 
     const data = await response.json();
-    return sanitizeQuote(data?.choices?.[0]?.message?.content, categoryId);
+    return sanitizeQuote(data?.choices?.[0]?.message?.content, categoryId, excludedQuotes);
   } catch (_error) {
-    return getRandomFallback(categoryId);
+    return getRandomFallback(categoryId, excludedQuotes);
   }
 }
