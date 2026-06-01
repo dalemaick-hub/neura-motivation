@@ -26,20 +26,30 @@ const EXPO_PUBLIC_OPENAI_API_KEY = process.env.EXPO_PUBLIC_OPENAI_API_KEY ?? pro
 
 // ── Validación en tiempo de build ──────────────────────────
 // Solo advertimos, no bloqueamos el build (la app tiene fallbacks)
+const __NEURA_CONFIG_WARNED__ = global.__NEURA_CONFIG_WARNED__ ||= {
+  supabase: false,
+  openai: false,
+};
 
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-  console.warn(
-    '\n⚠️  [NeuraMotivación] Supabase no configurado.\n' +
-    '   Copia .env.example a .env y rellena las claves.\n' +
-    '   La autenticación no funcionará hasta entonces.\n'
-  );
+  if (!__NEURA_CONFIG_WARNED__.supabase) {
+    __NEURA_CONFIG_WARNED__.supabase = true;
+    console.warn(
+      '\n⚠️  [NeuraMotivación] Supabase no configurado.\n' +
+      '   Copia .env.example a .env y rellena las claves.\n' +
+      '   La autenticación no funcionará hasta entonces.\n'
+    );
+  }
 }
 
 if (!EXPO_PUBLIC_OPENAI_API_KEY) {
-  console.warn(
-    '\n⚠️  [NeuraMotivación] EXPO_PUBLIC_OPENAI_API_KEY no encontrado.\n' +
-    '   La app usará frases de fallback local (sin IA).\n'
-  );
+  if (!__NEURA_CONFIG_WARNED__.openai) {
+    __NEURA_CONFIG_WARNED__.openai = true;
+    console.warn(
+      '\n⚠️  [NeuraMotivación] EXPO_PUBLIC_OPENAI_API_KEY no encontrado.\n' +
+      '   La app usará frases de fallback local (sin IA).\n'
+    );
+  }
 }
 
 // ── Exportación de configuración ───────────────────────────
